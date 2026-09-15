@@ -1,0 +1,31 @@
+feature/	Нова функціональність	feature/add-notifications
+bug/	Виправлення бага	bug/fix-chat-scroll
+refactor/	Перебудова коду без зміни поведінки	refactor/simplify-user-store
+hotfix/	Терміновий production fix	hotfix/fix-payment-error
+chore/	Технічні зміни, конфігурація	chore/update-dependencies
+docs/	Документація	docs/update-readme
+
+
+
+
+Branch:
+refactor/timer-composable
+
+Commit:
+refactor: simplify timer composable
+
+
+
+
+git reset --soft $(git merge-base main HEAD)
+git commit -m "feat: add goal timer"
+
+
+
+git checkout -b feature/add-goal-timer
+git checkout -b feature/x	створити + перейти
+git checkout feature/x	перейти
+
+git switch -c feature/add-goal-timer
+git switch -c feature/x	створити + перейти
+git switch feature/x	перейти
