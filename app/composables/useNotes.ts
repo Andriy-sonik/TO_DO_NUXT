@@ -1,3 +1,4 @@
+import { ref } from 'vue'
 import type { Note } from '~/types/note'
 import { API_ROUTES } from '~/utils/apiRoutes'
 import { apiFetch } from '~/utils/apiFetch'
