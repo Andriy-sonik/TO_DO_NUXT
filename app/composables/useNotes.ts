@@ -1,66 +1,91 @@
 import type { Note } from '~/types/note'
+import { API_ROUTES } from '~/utils/apiRoutes'
+import { apiFetch } from '~/utils/apiFetch'
+import { useListStatus } from './useListStatus'
 
 export function useNotes() {
   const message = ref('Hello Vue! 111')
   const notes = ref<Note[]>([])
   const newNote = ref('test111111')
-  const pending = ref(false)
   const error = ref<string | null>(null)
 
+  const getPending = ref(true)
+  const addPending = ref(false)
+  const deletePending = ref(false)
+
+  const listStatus = useListStatus(getPending, notes)
+
   const getNotes = async () => {
-    pending.value = true
-    error.value = null
+    getPending.value = true
 
     try {
-      notes.value = await $fetch<Note[]>('/api/todoapp/GetNotes')
-    }
-    catch (err) {
-      error.value = 'Failed to load notes'
-      console.error(err)
+      const result = await apiFetch<Note[]>(
+        API_ROUTES.notes.get,
+        undefined,
+        'Failed to load notes',
+      )
+
+      if (result.error) {
+        error.value = result.error
+        return
+      }
+
+      notes.value = result.data ?? []
+      error.value = null
     }
     finally {
-      pending.value = false
+      getPending.value = false
     }
   }
 
   const addNotes = async () => {
-    pending.value = true
-    error.value = null
+    addPending.value = true
 
     try {
       const formData = new FormData()
       formData.append('newNotes', newNote.value)
-      await $fetch('/api/todoapp/AddNotes', {
-        method: 'POST',
-        body: formData,
-      })
+
+      const result = await apiFetch(
+        API_ROUTES.notes.add,
+        {
+          method: 'POST',
+          body: formData,
+        },
+        'Failed to add note',
+      )
+
+      if (result.error) {
+        error.value = result.error
+        return
+      }
+
+      newNote.value = ''
       await getNotes()
     }
-    catch (err) {
-      error.value = 'Failed to add note'
-      console.error(err)
-    }
     finally {
-      pending.value = false
+      addPending.value = false
     }
   }
 
   const deleteNotes = async (id: string) => {
-    pending.value = true
-    error.value = null
+    deletePending.value = true
 
     try {
-      await $fetch(`/api/todoapp/DeleteNotes/${id}`, {
-        method: 'DELETE',
-      })
+      const result = await apiFetch(
+        API_ROUTES.notes.delete(id),
+        { method: 'DELETE' },
+        'Failed to delete note',
+      )
+
+      if (result.error) {
+        error.value = result.error
+        return
+      }
+
       await getNotes()
     }
-    catch (err) {
-      error.value = 'Failed to delete note'
-      console.error(err)
-    }
     finally {
-      pending.value = false
+      deletePending.value = false
     }
   }
 
@@ -68,8 +93,11 @@ export function useNotes() {
     message,
     notes,
     newNote,
-    pending,
     error,
+    getPending,
+    addPending,
+    deletePending,
+    listStatus,
     getNotes,
     addNotes,
     deleteNotes,

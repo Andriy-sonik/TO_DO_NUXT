@@ -1,10 +1,15 @@
 <script setup lang="ts">
+import { LIST_STATUS } from '~/composables/useListStatus'
+
 const {
   message,
   notes,
   newNote,
-  pending,
   error,
+  getPending,
+  addPending,
+  deletePending,
+  listStatus,
   getNotes,
   addNotes,
   deleteNotes,
@@ -23,23 +28,29 @@ onMounted(() => {
       {{ error }}
     </p>
 
-    <ul>
+    <p v-if="listStatus === LIST_STATUS.pending" class="list-loading">
+      <AppSpinner />
+    </p>
+    <p v-else-if="listStatus === LIST_STATUS.empty">
+      No notes yet.
+    </p>
+    <ul v-else>
       <li v-for="note in notes" :key="note.id">
         {{ note.desc }}
-        <button :disabled="pending" @click="deleteNotes(note.id)">
+        <AppButton :loading="deletePending" @click="deleteNotes(note.id)">
           delete
-        </button>
+        </AppButton>
       </li>
     </ul>
 
     <div class="actions">
-      <input v-model="newNote" type="text" placeholder="New note">
-      <button :disabled="pending" @click="getNotes">
+      <AppInput v-model="newNote" placeholder="New note" />
+      <AppButton :loading="getPending" @click="getNotes">
         get notes
-      </button>
-      <button :disabled="pending" @click="addNotes">
+      </AppButton>
+      <AppButton :loading="addPending" @click="addNotes">
         add notes
-      </button>
+      </AppButton>
     </div>
   </div>
 </template>
@@ -76,17 +87,9 @@ li {
   margin-top: 1rem;
 }
 
-input {
-  flex: 1;
-  padding: 0.5rem;
-}
-
-button {
-  cursor: pointer;
-}
-
-button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+.list-loading {
+  display: flex;
+  justify-content: center;
+  padding: 1.5rem 0;
 }
 </style>
