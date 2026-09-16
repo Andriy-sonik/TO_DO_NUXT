@@ -12,13 +12,14 @@ export default defineEventHandler(async (event) => {
 
     const database = await useDatabase()
     const numOfDoc = await database.collection('todocollectiuon').countDocuments({})
-
-    await database.collection('todocollectiuon').insertOne({
+    const note = {
       id: (numOfDoc + 1).toString(),
       desc: newNotes,
-    })
+    }
 
-    return 'Successfully added'
+    await database.collection('todocollectiuon').insertOne(note)
+
+    return note
   }
   catch (error) {
     if (error && typeof error === 'object' && 'statusCode' in error) {
