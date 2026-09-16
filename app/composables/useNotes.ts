@@ -45,7 +45,7 @@ export function useNotes() {
       const formData = new FormData()
       formData.append('newNotes', newNote.value)
 
-      const result = await apiFetch(
+      const result = await apiFetch<Note>(
         API_ROUTES.notes.add,
         {
           method: 'POST',
@@ -59,8 +59,12 @@ export function useNotes() {
         return
       }
 
+      if (result.data) {
+        notes.value.push(result.data)
+      }
+
       newNote.value = ''
-      await getNotes()
+      error.value = null
     }
     finally {
       addPending.value = false
@@ -82,7 +86,8 @@ export function useNotes() {
         return
       }
 
-      await getNotes()
+      notes.value = notes.value.filter(note => note.id !== id)
+      error.value = null
     }
     finally {
       deletePending.value = false
